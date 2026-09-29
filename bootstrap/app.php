@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\IsGuest;
+use App\Http\Middleware\IsLoggedIn;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'IsLoggedIn' => IsLoggedIn::class,
+            'IsGuest' => IsGuest::class,
+            'IsAdmin' => IsAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
