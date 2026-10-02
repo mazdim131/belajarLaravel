@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookCategoryController;
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SubscriptionPackageController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,7 @@ Route::middleware(['IsLoggedIn'])->group(function () {
             // menyediakan http method resource route untuk mengelola data kategori buku yang otomatis membuat semua method CRUD (create, read, update, delete) pada bookcategorycontroller
             Route::resource('book-categories', BookCategoryController::class);
             Route::resource('subscription-packages', SubscriptionPackageController::class);
+            Route::resource('books', BookController::class);
         });
     });
 });

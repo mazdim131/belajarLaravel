@@ -12,6 +12,6 @@ class BookCategory extends Model
 {
     // nama jamak menggunakan e/es karena bookcategories berperan sebagai many pada relasi one to many milik kategori buku
     public function books(): HasMany {
-        return $this->hasMany(BOOK::class);
+        return $this->hasMany(Book::class);
     }
 }

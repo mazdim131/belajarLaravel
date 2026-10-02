@@ -22,6 +22,10 @@
     {{-- CDN data tables --}}
     <link rel="stylesheet" href="https://cdn.datatables.net/3.1.2/css/dataTables.dataTables.min.css" />
 
+    {{-- CDN quiljs --}}
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+
+
     <style>
         html,
         body {
@@ -43,6 +47,9 @@
 
     {{-- CDN data tables --}}
     <script src="https://cdn.datatables.net/3.1.2/js/dataTables.min.js"></script>
+
+    {{-- CDN QuilsJs --}}
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
     @stack('scripts')
     <x-footer />

@@ -9,14 +9,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 // nama nama field yang akan diisi oleh pengguna/sistem, bukan default dari database
 // id dan timestamps: diisi default oleh sistem database
-#[Fillable(['cover', 'title', 'price', 'description', 'languange', 'publisher', 'writer', 'release_data', 'page_of_book'])]
+#[Fillable(['cover', 'title', 'price', 'description', 'languange', 'publisher', 'writer', 'release_data', 'page_of_book', 'book_category_id'])]
 
 class Book extends Model
 {
-    // nama tunggal tanpa e/es karena book_kategories berperan sebagai one
-    // pada relasi one to many milik kategori buku
-    public function BookCategory(): BelongsTo {
-        return $this->belongsTo(BookCategory::class);
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(BookCategory::class, 'book_category_id', 'id');
     }
 
     public function checkoutBook(): HasMany {
