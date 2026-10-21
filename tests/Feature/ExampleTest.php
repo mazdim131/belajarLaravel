@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    // halaman home membaca data paket langganan, jadi tabelnya harus disiapkan dulu
+    use RefreshDatabase;
+
     /**
      * A basic test example.
      */

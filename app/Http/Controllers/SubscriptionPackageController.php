@@ -17,30 +17,20 @@ class SubscriptionPackageController extends Controller
             $model = SubscriptionPackage::query();
 
             return DataTables::eloquent($model)
-            ->addIndexColumn()
+                ->addIndexColumn()
+                ->addColumn('action', function (SubscriptionPackage $data) {
+                    $booksUrl = route('admin.subscription-packages.books', $data->id);
+                    $deleteUrl = route('admin.subscription-packages.destroy', $data->id);
+                    $csrf = csrf_field();
+                    $method = method_field('DELETE');
 
-            ->addColumn('action', function($data) {
-                $deleteUrl = route('admin.subscription-packages.destroy', $data->id);
-                $csrf = csrf_field();
-                $method = method_field('DELETE');
-                $btnDelete = '
-                    <form action="'. $deleteUrl .'"
-                    method="POST" class="d-inline">
+                    $btnBuku = '<a href="' . $booksUrl . '" class="btn btn-sm btn-info">Buku</a>';
+                    $btnDelete = '<form action="' . $deleteUrl . '" method="POST" class="d-inline">' . $csrf . $method . '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Apakah anda yakin ingin menghapus paket langganan ini?\')">Hapus</button></form>';
 
-                    '. $csrf . $method.'
-
-                    <button type="submit" class="btn btn-sm btn-danger"
-                    onclick="return confirm(\'Apakah anda yakin ingin menghapus paket langganan ini?\')">
-                        Hapus
-                    </button>
-                    </form>
-                ';
-
-                return $btnDelete;
-            })
-
-            ->rawColumns(['action'])
-            ->toJson();
+                    return $btnBuku . $btnDelete;
+                })
+                ->rawColumns(['action'])
+                ->toJson();
         }
 
         return view('admin.subscription-packages.index');
@@ -67,6 +57,7 @@ class SubscriptionPackageController extends Controller
         ]);
 
         SubscriptionPackage::create($validateData);
+
         return redirect()->route('admin.subscription-packages.index')->with('success', 'Pilihan paket langganan berhasil ditambahkan!');
     }
 
@@ -103,6 +94,7 @@ class SubscriptionPackageController extends Controller
         ]);
 
         $subscriptionPackage->update($validateData);
+
         return redirect()->route('admin.subscription-packages.index')->with('success', 'Paket langganan berhasil diperbarui!');
     }
 

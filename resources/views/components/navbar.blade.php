@@ -34,7 +34,6 @@
                         <a href="{{ route('admin.books.index') }}"
                             class="nav-link {{ request()->routeIs('admin.books.index') ? 'active' : '' }}"">Buku</a>
                     </li>
-
                 @else
                     {{-- kategori --}}
                     <div class="dropdown mt-2">
@@ -45,21 +44,26 @@
                         <div class="dropdown-menu dropdown-menu-card" style="min-width: 600px;">
                             <div class="p-3">
                                 <div class="row g-2">
-                                    <div class="col-3">
-                                        <div class="card py-2">
-                                            <div class="card-body p-2 text-center">Kategori 1</div>
+                                    @foreach ($navbarCategories as $category)
+                                        <div class="col-3">
+                                            <a href="{{ route('books.category', $category->slug) }}">
+                                                <div class="card py-2">
+                                                    <div class="card-body p-2 text-center">{{ $category->name }}</div>
+                                                </div>
+                                            </a>
                                         </div>
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {{-- search bar --}}
-                    <div class="input-icon w-100 py-2">
-                        <input type="text" class="form-control form-control-rounded"
+                    <form method="GET" action="{{ route('search') }}" class="input-icon w-100 py-2">
+                        <input type="text" value="{{ request('q') }}" name="q"
+                            class="form-control form-control-rounded"
                             placeholder="Cari Judul, Produk, Buku, Penulis..." />
-                        <span class="input-icon-addon">
+                        {{-- <button type="submit" class="input-icon-addon btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -67,8 +71,8 @@
                                 <circle cx="10" cy="10" r="7" />
                                 <line x1="21" y1="21" x2="15" y2="15" />
                             </svg>
-                        </span>
-                    </div>
+                        </button> --}}
+                    </form>
 
                     {{-- icon keranjang --}}
                     <div class="mt-3 ms-2">

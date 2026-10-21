@@ -24,19 +24,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- penggunaan foreach karena bookCategories merupakan array multidimensi maka bookCategory akan berupa array assosiatif. mengaksesnya dengan menggunakan ->
-                    @foreach ($bookCategorys as $bookCategory)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            {{-- loop iteration fungsinya untuk menampilkan nomor urut --}}
-                    {{-- <td>{{ $bookCategory->name }}</td>
-                            <td>
-
-
-                            </td>
-                        </tr>
-                    @endforeach --}}
-
 
                 </tbody>
             </table>

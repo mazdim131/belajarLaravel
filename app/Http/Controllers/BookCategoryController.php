@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BookCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 class BookCategoryController extends Controller
@@ -29,11 +30,11 @@ class BookCategoryController extends Controller
                     $deleteUrl = route('admin.book-categories.destroy', $data->id);
                     $csrf = csrf_field();
                     $method = method_field('DELETE');
-                    $btnEdit = '<a href="'. $editUrl .'" class="btn btn-sm btn-warning">Edit</a>';
+                    $btnEdit = '<a href="'.$editUrl.'" class="btn btn-sm btn-warning">Edit</a>';
                     $btnDelete = '
-                                <form action="'. $deleteUrl .'"
+                                <form action="'.$deleteUrl.'"
                                     method="POST" class="d-inline">
-                                    '. $csrf . $method .'
+                                    '.$csrf.$method.'
                                     <button type="submit" class="btn btn-sm btn-danger"
                                         onclick="return confirm(\'Apakah anda yakin ingin menghapus paket langganan ini? \')">
                                         Hapus
@@ -42,7 +43,7 @@ class BookCategoryController extends Controller
 
                     ';
 
-                    return $btnEdit . $btnDelete;
+                    return $btnEdit.$btnDelete;
                 })
 
                 // menyimpan dari addcolumn yang ada html didalemnya
@@ -68,7 +69,12 @@ class BookCategoryController extends Controller
     {
         $validateData = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:book_categories,slug'],
         ]);
+
+        if (empty($validateData['slug'])) {
+            $validateData['slug'] = Str::slug($validateData['name']);
+        }
 
         BookCategory::create($validateData);
 
@@ -102,7 +108,12 @@ class BookCategoryController extends Controller
 
         $validateData = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', 'unique:book_categories,slug,'.$bookCategory->id],
         ]);
+
+        if (empty($validateData['slug'])) {
+            $validateData['slug'] = Str::slug($validateData['name']);
+        }
 
         $bookCategory->update($validateData);
 

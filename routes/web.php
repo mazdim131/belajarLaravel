@@ -2,16 +2,19 @@
 
 use App\Http\Controllers\BookCategoryController;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SubscriptionPackageBookController;
 use App\Http\Controllers\SubscriptionPackageController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    $subscriptionPackages = \App\Models\SubscriptionPackage::all();
-    return view('home', compact('subscriptionPackages'));
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/search', [HomeController::class, 'search'])->name('search');
+Route::get('/search-category', [HomeController::class, 'searchCategory'])->name('searchCategory');
+// Route::get('/category', [HomeController::class, 'allCategories'])->name('books.category.all');
+Route::get('/category/{category:slug}', [HomeController::class, 'byCategory'])->name('books.category');
 
-// Kelompok root yang boleh diaksesnya setelah login versi admin
+// Kelompok root yang boleh diakses setelah login versi admin
 Route::middleware(['IsLoggedIn'])->group(function () {
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 
@@ -24,7 +27,12 @@ Route::middleware(['IsLoggedIn'])->group(function () {
                 return view('admin.dashboard');
             })->name('dashboard');
 
-            // menyediakan http method resource route untuk mengelola data kategori buku yang otomatis membuat semua method CRUD (create, read, update, delete) pada bookcategorycontroller
+            // junction table
+            Route::get('subscription-packages/{id}/books', [SubscriptionPackageBookController::class, 'show'])->name('subscription-packages.books');
+            Route::post('subscription-packages/books', [SubscriptionPackageBookController::class, 'store'])->name('subscription-packages.books.store');
+
+            // menyediakan http method resource route untuk mengelola data kategori buku
+            // yang otomatis membuat semua method CRUD (create, read, update, delete)
             Route::resource('book-categories', BookCategoryController::class);
             Route::resource('subscription-packages', SubscriptionPackageController::class);
             Route::resource('books', BookController::class);
@@ -32,7 +40,7 @@ Route::middleware(['IsLoggedIn'])->group(function () {
     });
 });
 
-// Kelompok route yang boleh diaksesny4a sebelum login
+// Kelompok route yang boleh diakses sebelum login
 Route::middleware(['IsGuest'])->group(function () {
     Route::get('/register', function () {
         return view('register');

@@ -1,7 +1,6 @@
 @extends('layout.app')
 
 @section('content')
-    {{-- syarat ketika form upload file adalah enctype --}}
     <form action="{{ route('admin.books.store') }}" method="POST" enctype="multipart/form-data"
         class="card w-75 d-block mx-auto">
 
@@ -17,7 +16,7 @@
                     <label for="book_category_id" class="form-label">Kategori Buku</label>
                     <select name="book_category_id" id="book_category_id" class="form-select">
                         <option disabled hidden selected>Pilih</option>
-                        {{-- opsi kategori buku sesuai data yang dari controller (db) --}}
+
                         @foreach ($bookCategories as $category)
                             <option value="{{ $category->id }}">{{ $category['name'] }}</option>
                         @endforeach
