@@ -83,9 +83,9 @@
 
             <div class="row mb-3">
                 <div class="col-6">
-                    <label for="release_date" class="form-label">Tanggal Terbit</label>
-                    <input type="date" name="release_date" id="release_date" class="form-control" value="{{ old('release_date', $book->release_data) }}">
-                    @error('release_date')
+                    <label for="release_data" class="form-label">Tanggal Terbit</label>
+                    <input type="date" name="release_data" id="release_data" class="form-control" value="{{ old('release_data', $book->release_data) }}">
+                    @error('release_data')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>

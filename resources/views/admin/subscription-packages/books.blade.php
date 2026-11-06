@@ -11,34 +11,35 @@
         </div>
 
         {{-- form ini mengirim pilihan buku ke route admin.subscription-packages.books.store --}}
-        <form action="{{ route('admin.subscription-packages.books.store') }}" method="POST" id="form-paket-buku">
+        <form action="{{ route('admin.subscription-packages.books.store', $subscriptionPackage->id) }}" id="addBookForm"
+            method="POST" id="form-paket-buku">
             @csrf
             {{-- id paket langganan yang sedang diedit --}}
-            <input type="hidden" name="subscription_package_id" value="{{ $subscriptionPackage->id }}">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Daftar buku</span>
+                    <button type="submit" id="btnSubmitBooks" class="btn btn-primary d-none">
+                        <i class="fas fa-plus me-1"></i>Tambah ke paket langganan (<span id="selectedCount">0</span>)
+                    </button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered mt-3" id="data-buku">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 30px;">{{-- checkbox --}}</th>
+                                <th class="text-center" style="width: 50px;">#</th>
+                                <th style="width: 80px;">Sampul Buku</th>
+                                <th>Judul</th>
+                                <th>Penulis</th>
+                                <th>Katergori</th>
+                                <th class="text-end" style="width: 120px;">Harga</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
 
-            <div class="mb-3">
-                <label for="expired_date" class="form-label">Tanggal Berakhir Buku</label>
-                <input type="date" class="form-control" id="expired_date" name="expired_date"
-                    value="{{ old('expired_date', now()->addMonth()->format('Y-m-d')) }}">
-                @error('expired_date')
-                    <div class="text-danger">{{ $message }}</div>
-                @enderror
+                    </table>
+                </div>
             </div>
-
-            <table class="table table-bordered mt-3" id="data-buku">
-                <thead>
-                    <tr>
-                        <th></th> {{-- checkbox --}}
-                        <th>#</th>
-                        <th>Sampul Buku</th>
-                        <th>Judul</th>
-                        <th>Katergori</th>
-                        <th>Harga</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-
-            </table>
 
             <button type="submit" class="btn btn-primary mt-3">Simpan Buku</button>
         </form>
@@ -48,104 +49,74 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            // daftar id buku yang sudah tertaut ke paket ini, diisi dari server
-            // dipakai supaya checkbox tetap tercentang walau tabel di ganti halamannya
             const selectedBooks = new Set(@json($selectedBookIds));
-
             const table = $("#data-buku").DataTable({
-                //menampilkan ikon loading
                 processing: true,
-                // menggunakan server side (data diproses di controller)
                 serverSide: true,
-                // routing yang memproses datatables
-                // diarahkan ke route paket ini, bukan daftar buku semua
                 ajax: "{{ route('admin.subscription-packages.books', $subscriptionPackage->id) }}",
-                // isi td dari tablenya
                 columns: [
-                    // data dan name : nama kolom, seacrhable : bisa di seacrh ga datanya, orderable: bisa di urutin ga datanya
                     {
-                        // yg dikirim ketika ceklis buku itu idnya karena yg diperlukan subscription itu book_id
                         data: 'id',
                         name: 'id',
                         orderable: false,
-                        searchable: false
-                        // sama kaya editcolumn di serverside
-                        render: function(data, type, row) {
-                            // (data) isinya data: 'id'
-                            // (row) berisi data buku ini, termasuk is_selected yang menandai buku ini sudah tertaut atau belum
-                            if (type !== 'display') {
-                                return data;
+                        searchable: false,
+                        render: function(data, type) {
+                            if (data['checkAdded'] === 'Ya') {
+                                return ''; // Jika buku sudah ditambahkan tidak menampilkan checkbox
                             }
-                            // nama attribute sengaja dikosongkan, karena input book_id[] dibuat
-                            // sendiri oleh javascript saat form dikirim (lihat event submit di bawah)
-                            return `<input type="checkbox" value="${data}" class="form-check-input book-checkbox">`;
+                            // tampilkan checkbox jika buku belum ditambahkan
+                            return `<input type="checkbox" value="${data}" name="book_ids[]" class="book-checkbox">`;
                         }
                     },
-                    {
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'coverImg',
-                        name: 'coverImg',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'title',
-                        name: 'title'
-                    },
-                    // data : dari nama field/addcolumn/editcolumn
-                    // name: category.name : untuk search/sort carinya dari relasi
-                    {
-                        data: 'book_category_id',
-                        name: 'category.name'
-                    },
-                    {
-                        data: 'price',
-                        name: 'price'
-                    },
-
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-center' },
+                    { data: 'coverImg', name: 'coverImg', orderable: false, searchable: false, className: 'text-center' },
+                    { data: 'title', name: 'title' },
+                    { data: 'writer', name: 'writer' },
+                    { data: 'book_category_id', name: 'category.name' },
+                    { data: 'price', name: 'price', className: 'text-end' }
                 ]
             });
 
-            // setiap tabel selesai digambar ulang (ganti halaman, cari, atau sort)
-            // checkbox dibuat ulang oleh DataTables, jadi centangnya perlu disamakan
-            // dengan daftar selectedBooks
             table.on('draw.dt', function() {
                 $('#data-buku .book-checkbox').each(function() {
                     $(this).prop('checked', selectedBooks.has(parseInt($(this).val())));
                 });
+                updateButtonVisibility();
             });
 
-            // simpan atau hapus id buku dari daftar selectedBooks sesuai kondisi checkbox
             $('#data-buku').on('change', '.book-checkbox', function() {
                 const bookId = parseInt($(this).val());
-
                 if (this.checked) {
                     selectedBooks.add(bookId);
                 } else {
                     selectedBooks.delete(bookId);
                 }
+                updateButtonVisibility();
             });
 
-            // saat form dikirim, buat input hidden book_id[] dari daftar selectedBooks
-            // ini diperlukan karena DataTables server side hanya menampilkan isi halaman
-            // yang sedang dibuka, sedangkan selectedBooks menyimpan pilihan dari semua halaman
             $('#form-paket-buku').on('submit', function() {
-                $(this).find('input[name="book_id[]"]').remove();
-
+                var $form = $(this);
+                $form.find('input[name="book_ids[]"]').remove();
                 selectedBooks.forEach(function(bookId) {
                     $('<input>', {
                         type: 'hidden',
-                        name: 'book_id[]',
+                        name: 'book_ids[]',
                         value: bookId
-                    }).appendTo(this);
-                }, this);
+                    }).appendTo($form);
+                });
             });
 
+            function updateButtonVisibility() {
+                let checkedCount = selectedBooks.size;
+                $('#selectedCount').text(checkedCount);
+                if (checkedCount > 0) {
+                    $('#btnSubmitBooks').removeClass('d-none');
+                } else {
+                    $('#btnSubmitBooks').addClass('d-none');
+                }
+            }
+
+            updateButtonVisibility();
         });
     </script>
 @endpush

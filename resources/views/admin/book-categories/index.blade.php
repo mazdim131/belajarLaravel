@@ -3,9 +3,11 @@
 @section('content')
     <div class="container mt-5">
         <div class="d-flex justify-content-content-between align-items-center mb-3">
-            <h2>Tambah Kategori Buku</h2>
-            <a href="{{ route('admin.book-categories.create') }}" class="justify-content-end ms-auto btn btn-primary">Tambah
-                Kategori Buku</a>
+            <h2>Kategori Buku</h2>
+            <div class="justify-content-end ms-auto">
+                <a href="{{ route('admin.book-categories.export') }}" class="btn btn-success">Export Data</a>
+                <a href="{{ route('admin.book-categories.create') }}" class="btn btn-primary">Tambah Kategori</a>
+            </div>
         </div>
         @if (session('success'))
             <div class="alert alert-success">

@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SubscriptionPackagesExport;
 use App\Models\SubscriptionPackage;
+use App\Models\SubscriptionPackageUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class SubscriptionPackageController extends Controller
@@ -20,14 +24,16 @@ class SubscriptionPackageController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function (SubscriptionPackage $data) {
                     $booksUrl = route('admin.subscription-packages.books', $data->id);
+                    $editUrl = route('admin.subscription-packages.edit', $data->id);
                     $deleteUrl = route('admin.subscription-packages.destroy', $data->id);
                     $csrf = csrf_field();
                     $method = method_field('DELETE');
 
-                    $btnBuku = '<a href="' . $booksUrl . '" class="btn btn-sm btn-info">Buku</a>';
-                    $btnDelete = '<form action="' . $deleteUrl . '" method="POST" class="d-inline">' . $csrf . $method . '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Apakah anda yakin ingin menghapus paket langganan ini?\')">Hapus</button></form>';
+                    $btnBuku = '<a href="'.$booksUrl.'" class="btn btn-sm btn-info">Buku</a>';
+                    $btnDelete = '<form action="'.$deleteUrl.'" method="POST" class="d-inline">'.$csrf.$method.'<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Apakah anda yakin ingin menghapus paket langganan ini?\')">Hapus</button></form>';
+                    $btnEdit = '<a href="'.$editUrl.'" class="btn btn-warning btn-sm">Edit</a>';
 
-                    return $btnBuku . $btnDelete;
+                    return $btnBuku.$btnDelete.$btnEdit;
                 })
                 ->rawColumns(['action'])
                 ->toJson();
@@ -64,9 +70,22 @@ class SubscriptionPackageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id, Request $request)
     {
-        //
+        $subscriptionPackage = SubscriptionPackage::findOrFail($id);
+
+        $search = $request->input('search');
+
+        $books = $subscriptionPackage->SubscriptionPackageBook()
+            ->with('Book')
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('Book', function ($q) use ($search) {
+                    $q->where('title', 'like', '%'.$search.'%');
+                });
+            })
+            ->paginate(12);
+
+        return view('user.subscription-packages.show', compact('subscriptionPackage', 'books', 'search'));
     }
 
     /**
@@ -108,5 +127,31 @@ class SubscriptionPackageController extends Controller
         $subscriptionPackage->delete();
 
         return redirect()->route('admin.subscription-packages.index')->with('success', 'Paket langganan berhasil dihapus!');
+    }
+
+    public function checkoutPage($id)
+    {
+        $subscriptionPackage = SubscriptionPackage::findOrFail($id);
+
+        return view('user.subscription-packages.checkout', compact('subscriptionPackage'));
+    }
+
+    public function checkout(Request $request, $id)
+    {
+        $subscriptionPackage = SubscriptionPackage::findOrFail($id);
+
+        SubscriptionPackageUser::create([
+            'subscription_package_id' => $subscriptionPackage->id,
+            'user_id' => Auth::id(), // ambil id orang yang login, mendeteksi siapa user yang belinya
+            // 30 hari dari sekarang, format tahun-bulan-tanggal
+            'expired_date' => now()->addMonth(),
+        ]);
+
+        return redirect()->route('home')->with('success', 'Checkout berhasil!');
+    }
+
+    public function export()
+    {
+        return Excel::download(new SubscriptionPackagesExport, 'subscription_packages.xlsx');
     }
 }

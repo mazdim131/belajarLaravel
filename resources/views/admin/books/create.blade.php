@@ -15,10 +15,10 @@
                 <div class="col-6">
                     <label for="book_category_id" class="form-label">Kategori Buku</label>
                     <select name="book_category_id" id="book_category_id" class="form-select">
-                        <option disabled hidden selected>Pilih</option>
+                        <option disabled hidden {{ old('book_category_id') ? '' : 'selected' }}>Pilih</option>
 
                         @foreach ($bookCategories as $category)
-                            <option value="{{ $category->id }}">{{ $category['name'] }}</option>
+                            <option value="{{ $category->id }}" {{ old('book_category_id') == $category->id ? 'selected' : '' }}>{{ $category['name'] }}</option>
                         @endforeach
                     </select>
                     @error('book_category_id')
@@ -68,19 +68,22 @@
                 <div class="col-6">
                     <label for="languange" class="form-label">Bahasa</label>
                     <select name="languange" id="languange" class="form-select">
-                        <option disabled hidden selected>Pilih</option>
-                        <option value="Indonesia">Indonesia</option>
-                        <option value="English">English</option>
-                        <option value="Japan">Japan</option>
-                        <option value="Arabic">Arabic</option>
+                        <option disabled hidden {{ old('languange') ? '' : 'selected' }}>Pilih</option>
+                        <option value="Indonesia" {{ old('languange') == 'Indonesia' ? 'selected' : '' }}>Indonesia</option>
+                        <option value="English" {{ old('languange') == 'English' ? 'selected' : '' }}>English</option>
+                        <option value="Japan" {{ old('languange') == 'Japan' ? 'selected' : '' }}>Japan</option>
+                        <option value="Arabic" {{ old('languange') == 'Arabic' ? 'selected' : '' }}>Arabic</option>
                     </select>
+                    @error('languange')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
                 </div>
             </div>
 
             <div class="row mb-3">
                 <div class="col-6">
                     <label for="release_data" class="form-label">Tanggal Terbit</label>
-                    <input type="date" name="release_data" id="release_data" class="form-control">
+                    <input type="date" name="release_data" id="release_data" class="form-control" value="{{ old('release_data') }}">
                     @error('release_data')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
@@ -133,10 +136,15 @@
             theme: 'snow'
         });
 
-        document.querySelector('#description_input').value = '-';
+        const descriptionInput = document.querySelector('#description_input');
+        if (descriptionInput.value && descriptionInput.value !== '-') {
+            quill.root.innerHTML = descriptionInput.value;
+        } else {
+            descriptionInput.value = '-';
+        }
 
         quill.on('text-change', function() {
-            document.querySelector('#description_input').value = quill.root.innerHTML;
+            descriptionInput.value = quill.root.innerHTML;
         });
     </script>
 @endpush

@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\BooksExport;
 use App\Models\Book;
 use App\Models\BookCategory;
+use App\Models\Checkout;
+use App\Models\CheckoutBook;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class BookController extends Controller
@@ -79,12 +84,8 @@ class BookController extends Controller
             'description' => ['nullable'],
             'book_category_id' => ['required', 'exists:book_categories,id'],
             'page_of_book' => ['required', 'numeric'],
-            'release_date' => ['required', 'date'], // nama field di form
+            'release_data' => ['required', 'date'],
         ]);
-
-        // map release_date (nama field di form) ke release_data (kolom di DB)
-        $validatedData['release_data'] = $validatedData['release_date'];
-        unset($validatedData['release_date']);
 
         if ($request->file('cover')) {
             $cover = $request->file('cover');
@@ -101,9 +102,10 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $book = Book::where('id', $id)->with('subscriptionPackageBooks')->first();
+        return view('user.books.show', compact('book'));
     }
 
     /**
@@ -134,12 +136,8 @@ class BookController extends Controller
             'description' => ['nullable'],
             'book_category_id' => ['required', 'exists:book_categories,id'],
             'page_of_book' => ['required', 'numeric'],
-            'release_date' => ['required', 'date'], // nama field di form
+            'release_data' => ['required', 'date'],
         ]);
-
-        // map release_date (nama field di form) ke release_data (kolom di DB)
-        $validatedData['release_data'] = $validatedData['release_date'];
-        unset($validatedData['release_date']);
 
         if ($request->file('cover')) {
             if ($book->cover) {
@@ -148,7 +146,7 @@ class BookController extends Controller
             }
             $cover = $request->file('cover');
             $namaFile = time().'.'.$cover->getClientOriginalExtension();
-            
+
             Storage::disk('public')->putFileAs('covers', $cover, $namaFile);
             $validatedData['cover'] = Storage::url('covers/'.$namaFile);
         }
@@ -173,5 +171,39 @@ class BookController extends Controller
         $book->delete();
 
         return redirect()->route('admin.books.index')->with('success', 'Berhasil menghapus data buku');
+    }
+
+    public function export()
+    {
+        return Excel::download(new BooksExport, 'books.xlsx');
+    }
+
+    public function checkoutPage($id)
+    {
+        $book = Book::findOrFail($id);
+
+        return view('checkoutBooks', compact('book'));
+    }
+
+    public function checkout(Request $request, $id)
+    {
+        $book = Book::findOrFail($id);
+
+        $checkout = Checkout::create([
+            'user_id' => Auth::id(),
+            'payment_method' => 'QRIS',
+            'total_book' => 1,
+            'total_book_price' => $book->price,
+            'total_price' => $book->price,
+            'status' => 'Pending',
+        ]);
+
+        CheckoutBook::create([
+            'checkout_id' => $checkout->id,
+            'book_id' => $book->id,
+            'total_book' => 1,
+        ]);
+
+        return redirect()->route('home')->with('success', 'Checkout buku berhasil!');
     }
 }

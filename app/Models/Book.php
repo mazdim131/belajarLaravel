@@ -22,7 +22,7 @@ class Book extends Model
         return $this->hasMany(CheckoutBook::class);
     }
 
-    public function subsctiptionPackageBook(): HasMany {
+    public function subscriptionPackageBooks(): HasMany {
         return $this->hasMany(SubscriptionPackageBook::class);
     }
 }

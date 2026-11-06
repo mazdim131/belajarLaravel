@@ -76,7 +76,9 @@
 
                     {{-- icon keranjang --}}
                     <div class="mt-3 ms-2">
-                        <i class="fa-solid fa-cart-arrow-down fs-2 text dark"></i>
+                        <a href="{{ route('carts') }}">
+                            <i class="fa-solid fa-cart-arrow-down fs-2 text dark"></i>
+                        </a>
                     </div>
                 @endif
 
@@ -84,6 +86,8 @@
             <div class="navbar-nav flex-row order-md-last ms-auto gap-2">
                 {{-- function check udh ada sesi login atau belum --}}
                 @if (Auth::check())
+                    <a href="{{ route('profile') }}"
+                        class="btn btn-light rounded-circle">{{ strtoupper(mb_substr(Auth::user()->name, 0, 2)) }}</a>
                     <a href="{{ route('logout') }}" class="btn btn-danger">Logout</a>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-primary">Login</a>

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\BookCategoriesExport;
 use App\Models\BookCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
+
 
 class BookCategoryController extends Controller
 {
@@ -132,5 +135,10 @@ class BookCategoryController extends Controller
 
         // delete digunakan pada model untuk menghapus data, namun penggunaannya harus setelah proses pencarian data yang akan diubahnya
         return redirect()->route('admin.book-categories.index')->with('success', 'Kategori buku telah berhasil di hapus');
+    }
+
+    public function export()
+    {
+        return Excel::download(new BookCategoriesExport, 'book_categories.xlsx');
     }
 }

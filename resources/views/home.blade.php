@@ -93,103 +93,105 @@
             <div class="row g-4">
                 @foreach ($subscriptionPackages as $package)
                     <div class="col-md-4">
-                        <div class="card mt-3 h-100"
-                            style="background: linear-gradient(135deg, #ffffff 0%, {{ $package->color }} 200%);">
-                            <div class="card-body row">
-                                <div class="col-4"></div>
-                                <div class="col-6 text-center text-dark">
-                                    <h2 style="font-weight: bold;">{{ $package->name }}</h2>
-                                    <p class="text-secondary" style="font-weight: bold; margin: 0 !important;">
-                                        {{ $package->description }}</p>
-                                    <div>
-                                        <span style="font-size: 2rem; font-weight: bold;" class="text-warning">Rp
-                                            {{ number_format($package->prices, 0, ',', '.') }}</span>
-                                        <br />
-                                        <span style="font-weight: bold; margin: 0 !important;" class="text-secondary">/30
-                                            Days</span>
+                        <a href="{{ route('subscription-packages.show', $package->id) }}" class="text-decoration-none">
+                            <div class="card mt-3 h-100"
+                                style="background: linear-gradient(135deg, #ffffff 0%, {{ $package->color }} 200%);">
+                                <div class="card-body row">
+                                    <div class="col-4"></div>
+                                    <div class="col-6 text-center text-dark">
+                                        <h2 style="font-weight: bold;">{{ $package->name }}</h2>
+                                        <p class="text-secondary" style="font-weight: bold; margin: 0 !important;">
+                                            {{ $package->description }}</p>
+                                        <div>
+                                            <span style="font-size: 2rem; font-weight: bold;" class="text-warning">Rp
+                                                {{ number_format($package->prices, 0, ',', '.') }}</span>
+                                            <br />
+                                            <span style="font-weight: bold; margin: 0 !important;"
+                                                class="text-secondary">/30
+                                                Days</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 @endforeach
             </div>
 
         </div>
 
-    {{-- buku baru --}}
-    <div class="mt-4" id="buku-baru">
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-yellow text-yellow-fg p-2"><i class="fa-solid fa-crown fs-3"></i></span>
-            <h2 class="mt-3 text-dark">Buku Baru Di Rilis</h2>
-        </div>
-        <div id="wrapper-slider">
-            @forelse ($latestBooks as $book)
-                <div class="px-2">
-                    <div class="card" style="padding: 0.75rem; border-radius: 16px;">
-                        <div class="card-body">
-                            <img class="d-block mx-auto w-40 h-50" alt="{{ $book->title }}"
-                                src="{{ asset($book->cover) }}" />
-                            <div class="d-flex gap-2 mt-2">
-                                <p class="badge"><i class="fa-solid fa-mobile"></i>PDP</p>
-                                <p class="badge">3+</p>
-                            </div>
-                            <div>
-                                <h5><span style="font-size: 0.8rem;"
-                                        class="text-secondary">{{ $book->writer }}</span>
-                                    <br><span style="font-size: 1rem;">{{ $book->title }}</span>
-                                </h5>
-                                <h4 style="font-size: 1.2rem; font-weight: bold">Rp
-                                    {{ number_format($book->price, 0, ',', '.') }} </h4>
+        {{-- buku baru --}}
+        <div class="mt-4" id="buku-baru">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-yellow text-yellow-fg p-2"><i class="fa-solid fa-crown fs-3"></i></span>
+                <h2 class="mt-3 text-dark">Buku Baru Di Rilis</h2>
+            </div>
+            <div id="wrapper-slider">
+                @forelse ($latestBooks as $book)
+                    <div class="px-2">
+                        <div class="card" style="padding: 0.75rem; border-radius: 16px;">
+                            <div class="card-body">
+                                <img class="d-block mx-auto w-40 h-50" alt="{{ $book->title }}"
+                                    src="{{ asset($book->cover) }}" />
+                                <div class="d-flex gap-2 mt-2">
+                                    <p class="badge"><i class="fa-solid fa-mobile"></i>PDF</p>
+                                    <p class="badge">3+</p>
+                                </div>
+                                <div>
+                                    <h5><span style="font-size: 0.8rem;" class="text-secondary">{{ $book->writer }}</span>
+                                        <br><a href="{{ route('books.show', $book->id) }}" style="font-size: 1rem;">{{ $book->title }}</a>
+                                    </h5>
+                                    <h4 style="font-size: 1.2rem; font-weight: bold">Rp
+                                        {{ number_format($book->price, 0, ',', '.') }} </h4>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="col-12">
-                    <p class="text-center">Tidak ada buku baru yang tersedia.</p>
-                </div>
-            @endforelse
+                @empty
+                    <div class="col-12">
+                        <p class="text-center">Tidak ada buku baru yang tersedia.</p>
+                    </div>
+                @endforelse
+            </div>
         </div>
-    </div>
 
-    {{-- gratis --}}
-    <div class="mt-4">
-        <div class="d-flex align-items-center gap-2 mb-4">
-            <h2 class="mt-3 text-dark" style="font-weight: bold">Buku Gratis</h2>
-        </div>
-        <div class="row g-4">
-            @forelse ($freeBooks as $book)
-                <div class="col-md-4">
-                    <div class="card d-flex flex-column h-100">
-                        <div class="row row-0 flex-fill">
-                            <div class="col-4">
-                                <img src="{{ asset($book->cover) }}" class="w-100 h-100 object-cover"
-                                    style="border-radius: 8px 0 0 8px;" alt="{{ $book->title }}">
-                            </div>
-                            <div class="col">
-                                <div class="card-body h-full d-flex flex-column">
-                                    <span class="badge bg-success mb-2" style="width: fit-content;"><i
-                                            class="fa-solid fa-mobile"></i> PDF</span>
-                                    <div class="text-secondary">
-                                        {{ $book->writer }}
-                                        <br><span class="text-dark fw-bold">{{ $book->title }}</span>
-                                    </div>
-                                    <div class="d-flex align-items-center pt-4 mt-auto">
-                                        <h3 class="text-success fw-bold">Gratis</h3>
+        {{-- gratis --}}
+        <div class="mt-4">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <h2 class="mt-3 text-dark" style="font-weight: bold">Buku Gratis</h2>
+            </div>
+            <div class="row g-4">
+                @forelse ($freeBooks as $book)
+                    <div class="col-md-4">
+                        <div class="card d-flex flex-column h-100">
+                            <div class="row row-0 flex-fill">
+                                <div class="col-4">
+                                    <img src="{{ asset($book->cover) }}" class="w-100 h-100 object-cover"
+                                        style="border-radius: 8px 0 0 8px;" alt="{{ $book->title }}">
+                                </div>
+                                <div class="col">
+                                    <div class="card-body h-full d-flex flex-column">
+                                        <span class="badge bg-success mb-2" style="width: fit-content;"><i
+                                                class="fa-solid fa-mobile"></i> PDF</span>
+                                        <div class="text-secondary">
+                                            {{ $book->writer }}
+                                            <br><span class="text-dark fw-bold">{{ $book->title }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center pt-4 mt-auto">
+                                            <h3 class="text-success fw-bold">Gratis</h3>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @empty
-                <div class="col-12">
-                    <p class="text-center text-secondary">Belum ada buku gratis yang tersedia.</p>
-                </div>
-            @endforelse
+                @empty
+                    <div class="col-12">
+                        <p class="text-center text-secondary">Belum ada buku gratis yang tersedia.</p>
+                    </div>
+                @endforelse
+            </div>
         </div>
-    </div>
 
     </div>
 @endsection
